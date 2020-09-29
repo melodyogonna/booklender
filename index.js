@@ -1,27 +1,51 @@
-const books = [];
-
+/** Simple constructor to demonstrate the observer design pattern */
 function Observer() {
   const subscribers = {};
 
+  /** Subscribe a function to an event, this method takes an a event and
+   * callback function, every function subscibed to an event is called when
+   * the event is published
+   * @param{string} event - Event name
+   * @param{function} cb - Callback method
+   * @returns{number} length of functions currently subscribed to the passed event
+   */
   this.subscibe = function (event, cb) {
     if (subscribers[event]) {
       return subscribers[event].push(cb);
     }
 
-    return (subscribers[event] = [cb]);
+    subscribers[event] = [cb];
+    return subscribers[event].length;
   };
 
-  this.publish = function (event, args) {
+  /** Call every function subscribed to the passed in event
+   * @param{string} event - Name of event to call methods on
+   * @param{array} args - Arguments to pass to the listening functions
+   * @returns{boolean} Returns true if any function was ran or false
+   * otherwise
+   */
+  this.publish = function (event, ...args) {
     if (!subscribers[event]) {
       return false;
     }
 
     const subs = subscribers[event];
+
+    if (subs.length < 0) {
+      return false;
+    }
+
     subs.forEach((subscriber) => {
-      return subscriber(args);
+      return subscriber(...args);
     });
+
+    return true;
   };
 
+  /** Unsubscribe a function from an event
+   * @param{string} event - Name of event to remove the function from
+   * @param{function} cb - Function to unsubscribe from the passed event
+   */
   this.unsubscribe = function (event, cb) {
     if (!subscribers[event]) {
       return false;
@@ -38,46 +62,57 @@ function Observer() {
   };
 }
 
-const addbook = (bookname) => {
+/** Add a new book to library
+ * @param {string} bookname - Name of book to add
+ */
+const addbook = (bookname, arr) => {
   const newbook = { bookname, available: true };
-  return books.push(newbook);
+  return arr.push(newbook);
 };
 
-const lendbook = (bookname) => {
-  return books.map((book) => {
+/** Lend out a book
+ * @param {string} bookname - Name of book to lend out
+ */
+const lendbook = (bookname, arr) => {
+  let a;
+  arr.map((book) => {
     if (book.bookname === bookname) {
       console.log(`${book.bookname} found in books, renting ...`);
-      return (book.available = false);
+      book.available = false;
+      return (a = book);
     }
   });
+  return a;
 };
 
-const bookdetails = (type) => {
+/** Return stats of books currently in the library
+ * @param {string} type - Which details you'd like to get
+ * @returns {number} Appropriate number of books for passed type
+ */
+const bookdetails = (type, arr) => {
   if (type === "full") {
-    console.log(`Books contain a total of ${books.length} books`);
+    console.log(`Books contain a total of ${arr.length} books`);
+    return arr.length;
   } else if (type === "rented") {
-    const rentedBooks = books.filter((book) => {
+    const rentedBooks = arr.filter((book) => {
       return book.available === false;
     });
-    console.log(`${rentedBooks.length} books have been rented so far`);
+
+    return rentedBooks.length;
   } else if (type === "available") {
-    const availableBooks = books.filter((book) => {
+    const availableBooks = arr.filter((book) => {
       return book.available === true;
     });
-    console.log(`${availableBooks.length} books is available in collection`);
+
+    return availableBooks.length;
   } else {
-    console.log("Passed parameter type is not recognised");
+    throw new TypeError("Passed parameter type is not recognised");
   }
 };
 
-const BookLender = new Observer();
-BookLender.subscibe("addbook", addbook);
-BookLender.subscibe("lendbook", lendbook);
-BookLender.subscibe("booksummary", bookdetails);
-BookLender.publish("addbook", "A game of thrones");
-BookLender.publish("lendbook", "A game of thrones");
-BookLender.unsubscribe("lendbook", lendbook);
-BookLender.publish("lendbook", "A game of thrones");
-BookLender.publish("booksummary", "full");
-BookLender.publish("booksummary", "available");
-BookLender.publish("booksummary", "rented");
+module.exports = {
+  Observer,
+  addbook,
+  lendbook,
+  bookdetails,
+};
