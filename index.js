@@ -51,6 +51,11 @@ function Observer() {
       return false;
     }
     subs = subscribers[event];
+
+    if (subs.length < 0) {
+      return false;
+    }
+
     subs.forEach((func, index) => {
       if (func === cb) {
         console.log(
@@ -59,11 +64,15 @@ function Observer() {
         return subscribers[event].splice(index, 1);
       }
     });
+
+    return true;
   };
 }
 
 /** Add a new book to library
  * @param {string} bookname - Name of book to add
+ * @param {array} arr - Array to add book to
+ * @returns {number} New length of array
  */
 const addbook = (bookname, arr) => {
   const newbook = { bookname, available: true };
@@ -72,6 +81,8 @@ const addbook = (bookname, arr) => {
 
 /** Lend out a book
  * @param {string} bookname - Name of book to lend out
+ * @param {array } arr - Array to lend out book from
+ * @returns {object} Lent out book
  */
 const lendbook = (bookname, arr) => {
   let a;
@@ -91,7 +102,6 @@ const lendbook = (bookname, arr) => {
  */
 const bookdetails = (type, arr) => {
   if (type === "full") {
-    console.log(`Books contain a total of ${arr.length} books`);
     return arr.length;
   } else if (type === "rented") {
     const rentedBooks = arr.filter((book) => {

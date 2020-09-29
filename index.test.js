@@ -14,9 +14,28 @@ test("Publisher is working correctly", () => {
   expect(BookLender.publish("remove", "A game of thrones", books)).toBe(false);
 });
 
-BookLender.publish("lendbook", "A game of thrones", books);
-BookLender.unsubscribe("lendbook", lendbook);
-BookLender.publish("lendbook", "A game of thrones", books);
-BookLender.publish("booksummary", "full", books);
-BookLender.publish("booksummary", "available", books);
-BookLender.publish("booksummary", "rented", books);
+test("Unsubscriber is working correctly", () => {
+  expect(BookLender.unsubscribe("lendbook", lendbook)).toBe(false);
+});
+
+//Test booklending methods
+describe("description", function () {
+  test("Test book is added to passed arr", () => {
+    const l = books.length;
+
+    expect(addbook("Harry Potter", books)).toEqual(l + 1);
+  });
+
+  test("test book is lended out from passed in array", () => {
+    expect(lendbook("Harry Potter", books)).toHaveProperty(
+      "bookname",
+      "Harry Potter"
+    );
+
+    expect(lendbook("Harry Potter", books)).toHaveProperty("available", false);
+  });
+
+  test("Book summary is being returned", () => {
+    expect(bookdetails("full", books)).toEqual(books.length);
+  });
+});
